@@ -15,7 +15,7 @@ jit(nopython=True)'''
 
 
 
-# ------------ PROPERTIES -----------------------
+# ------------ PROPERTIES ------------------------
 
 #K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 15, 4, 0, 0, [2,10,11,14,15], 0, 5, 'dm_ZNE', '5best'
 
