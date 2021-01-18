@@ -346,7 +346,9 @@ def sono_ZNE_ferq_normalization(ref_sono_2d_Z_NotNormalized, ref_sono_2d_N_NotNo
     #plt.show()'''
 
 def calcEpsilon(X, dist, ep_factor=4):
+
     '''ep_factor - parameter that controls the width of the Gaussian kernel'''
+    '''max-min method'''
 
     temp = list(dist + np.multiply(np.identity(dist.shape[0]), np.amax(dist)))
 
@@ -358,21 +360,8 @@ def calcEpsilon(X, dist, ep_factor=4):
                 small = row[el]
         mins.append(small)
 
-
-    '''temp = list(dist + np.multiply(np.identity(len(X)), max(max(dist))))
-
-    #dist = sp.distance.pdist(np.asarray(dataList), metric ='cosine')
-    #temp = list(dist + np.multiply(np.identity(len(X)) ,max(dist)))
-
-    mins = []
-    for row in temp:
-        small = sys.maxsize
-        for el in row:
-            if(el < small and el != 0):
-                small = el
-        mins.append(small)'''
-
     return max(mins) * ep_factor
+
 
 def construct_gaussian_kernel(dataList, X, ep_factor=4):
 
@@ -411,25 +400,42 @@ def diffusionMapping(data, dim=3, ep_factor=4):
     X = range(len(dataList)) # indices
     ker, eps = construct_gaussian_kernel(dataList, X, ep_factor)
 
-    sum_row = np.sqrt(np.sum(ker, axis=0).reshape(-1,1)) #todo neta (verify) > not change the results
+
+    # Normalizations neta old:
+    '''sum_row = np.sqrt(np.sum(ker, axis=0).reshape(-1,1)) #todo
     sum_col = np.sqrt(np.sum(ker, axis=1).reshape(1,-1))
     sum_mul = np.matmul(sum_row, sum_col)
     ker_new = ker/sum_mul
-
     omega = np.sum(ker_new, axis=0).reshape(-1,1)
-    ker_nrm = np.divide(ker_new, np.matlib.repmat(omega, 1, ker_new.shape[1]))  # try np.sqrt(omega)
+    ker_nrm = np.divide(ker_new, np.matlib.repmat(omega, 1, ker_new.shape[1]))  # try np.sqrt(omega)'''
+
+
+    # Normalizations neta new:
+    #sum_row = np.sum(ker, axis=0).reshape(-1, 1)  # todo
+
+    #Ronen:
+    Q = np.diag(np.divide(1,np.sum(ker, axis=0)))
+    ker_tilda = np.matmul(np.matmul(Q,ker),Q)
+    Q_tilda = np.diag(np.divide(1, np.sqrt(np.sum(ker_tilda, axis=0))))
+    ker_nrm = np.matmul(np.matmul(Q_tilda, ker_tilda), Q_tilda)
 
     # Calc eigenvalues and eigenvectors of a - real symmetric matrix
     eigval, eigvec = LA.eigh(np.array(ker_nrm))                               #eig or eigh (because after normalization not smmetric > only eigh gives good results
     eigval_sorted, eigvec_sorted = np.flip(eigval), np.flip(eigvec, axis=1)
     eigvec_final = eigvec_sorted[:, 1:]  # get rid of the first eigen vector
+
+    #Ronene:
+    eigvec_final2 = eigvec_final.copy()
+    for i in range(eigvec_final.shape[1]):
+        eigvec_final2[:,i] = np.divide(eigvec_final2[:,i] ,eigvec_sorted[:,0] )
+    eigvec_final = eigvec_final2.copy()
+
     eigval_final = eigval_sorted[1:]     # get rid of the first eigen value
     #dm_embeddings = eigvec_final[:, :dim]
 
     dm_embeddings = []
     for i in range(dim):
-        #dm_embed = np.matmul(ker_nrm, eigvec_final[:, i]) / np.sqrt((eigval_final[i]))
-        dm_embed = eigvec_final[:, i] *eigval_final[i]
+        dm_embed = eigvec_final[:, i] * eigval_final[i]
         dm_embeddings.append(dm_embed)
     dm_embeddings = np.asarray(dm_embeddings).T
 
@@ -444,7 +450,7 @@ def diffusionMapping(data, dim=3, ep_factor=4):
     '''
 
     #return dm_embeddings, eigvec_final, eigval_final, ker_nrm, eps
-    return dm_embeddings, eigvec_final[:,:dim], eigval_final[:dim], ker_nrm, eps
+    return dm_embeddings, eigvec_final[:,:dim], eigval_final[:dim], ker_nrm, eps, eigvec_sorted[:,0]
 
 ### Multi Diffusion Maps ###
 
@@ -548,19 +554,51 @@ def plot_3d_embed_a(embed, labels, x, c_dict, label_dict, title, fig, legend=0):
     a.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
   plt.title(title)
 
-def plot_2d_embed_a(embed, labels, x, c_dict, label_dict, title, fig, legend=0, xlabel='', ylabel=''):
-  fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.3)
-  a = fig.add_subplot(x[0], x[1], x[2])
-  for g in np.unique(labels):
-      i = np.where(labels == g)
-      a.scatter(embed[i, 0], embed[i, 1], c=c_dict[g], s=2, label=label_dict[g])
-  if legend==1:
-    a.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-  plt.title(title)
-  if xlabel != '':
-      plt.xlabel(xlabel)
-  if ylabel != '':
-      plt.ylabel(ylabel)
+def plot_2d_embed_a(embed, labels, x, c_dict, label_dict, title, fig, legend=0, xlabel='', ylabel='', ylabel_super='', xlabel_super='', mode='red pink top'):
+    fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.3)
+    a = fig.add_subplot(x[0], x[1], x[2])
+
+    if mode=='red pink top':
+        g_1_flag=0
+        g_10_flag=0
+        g_11_flag=0
+        for g in np.unique(labels):
+            if g==1:
+                g_1_flag = 1
+            elif g==10:
+                g_10_flag = 1
+            elif g==11:
+                g_11_flag = 1
+            else:
+                i = np.where(labels == g)
+                a.scatter(embed[i, 0], embed[i, 1], c=c_dict[g], s=1, label=label_dict[g])
+        if g_1_flag==1:
+            g=1
+            i = np.where(labels == g)
+            a.scatter(embed[i, 0], embed[i, 1], c=c_dict[g], s=6, label=label_dict[g])
+        if g_10_flag==1:
+            g=10
+            i = np.where(labels == g)
+            a.scatter(embed[i, 0], embed[i, 1], c=c_dict[g], s=6, label=label_dict[g])
+        if g_11_flag==1:
+            g=11
+            i = np.where(labels == g)
+            a.scatter(embed[i, 0], embed[i, 1], c=c_dict[g], s=6, label=label_dict[g])
+    else:
+        for g in np.unique(labels):
+            i = np.where(labels == g)
+            a.scatter(embed[i, 0], embed[i, 1], c=c_dict[g], s=1, label=label_dict[g])
+    if legend==1:
+        a.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+    plt.title(title)
+    if xlabel != '':
+        plt.xlabel(xlabel)
+    if ylabel != '':
+        plt.ylabel(ylabel)
+    if xlabel_super != '':
+        plt.title(xlabel_super, pad=10, fontsize=14)
+    if ylabel_super != '':
+        plt.ylabel(ylabel_super, rotation='horizontal', labelpad=35, fontsize=14)
 
 def selection_2d(proj):
     from datafold.dynfold import LocalRegressionSelection
@@ -971,7 +1009,7 @@ def reference_training(train_sono, closest_to_clds_centers, clds_cov, K, ep, ep_
 
     #return W2, A2, d2,  W_I, ep_factor*ep, most_similar_cld_index
     #return W_R, A1, d, W_I, ep_factor * ep, most_similar_cld_index
-    return W1, A1, d,  W_I, ep_factor*ep, most_similar_cld_index
+    return W1, A1, d1,  W_I, ep_factor*ep, most_similar_cld_index
 
 def reference_final_eigenvectors_and_normalization(W2, A2, d2):
     # DIFFERENT APPROACH FOR NORMALIZATION
@@ -1043,7 +1081,7 @@ def LogisticRegression_classifier(train_embedding, train_labels, psi_test, label
     return psi_test, psi_error, labels_pred,  labels_error, confusion_matrix
 
 
-def Insert_New_Point(train_sono, data_test, train_embedding, epsilon_train, eigvec, eigval, extension_method='', closest_to_clds_centers=None, clds_cov=None, ker_train=None, dim=19):
+def Insert_New_Point(train_sono, data_test, train_embedding, epsilon_train, eigvec, eigval, extension_method='', closest_to_clds_centers=None, clds_cov=None, ker_train=None, dim=19, d1=0, eigvec_zero=None):
 
     New_points_Embedding = []
 
@@ -1057,11 +1095,28 @@ def Insert_New_Point(train_sono, data_test, train_embedding, epsilon_train, eigv
         if extension_method == 'extension: gh cosine':
             high2low_dist = metrics.pairwise.cosine_distances(train_sono, Y=data_test[i,:].reshape(-1,1).T)
             high2low_ker = np.exp(-high2low_dist / epsilon_train)
-            sum_row = np.sum(high2low_ker, axis=0).reshape(-1, 1)
-            ker_nrm = high2low_ker / sum_row
-            ### NoEigsUsed = len(ind[0])
+
+            #old normalization:
+            #sum_row = np.sum(high2low_ker, axis=0).reshape(-1, 1)
+            #ker_nrm = high2low_ker / sum_row
+
+            #Ronen:
+            Q = np.diag(np.divide(1, np.sum(high2low_ker, axis=0)))
+            #ker_tilda = np.matmul(np.matmul(Q, high2low_ker), Q)
+            ker_tilda = Q*high2low_ker*Q
+            Q_tilda = np.diag(np.divide(1, np.sqrt(np.sum(ker_tilda, axis=0))))
+            ker_nrm = Q_tilda*ker_tilda*Q_tilda
+            #eigvec = eigvec * eigval
+
+
+            #Ronen:
+            #if i==0:
+            #    for i in range(eigvec.shape[1]):
+            #        eigvec[:, i] = np.matmul(eigvec[:, i], eigvec_zero)
+
             Ie = np.squeeze(np.matmul(np.matmul(ker_nrm.T, np.squeeze(eigvec)), np.diagflat(1. / eigval)))  # extend the GH eigenvectors to be defined on the new point    #Eq.(3.11)
-            New_points_Embedding.append(np.squeeze(np.matmul(np.matmul(Ie, np.squeeze(eigvec).T), train_embedding).reshape(1, -1)))         # extend the function f to the new point .f here is the DM coordinate #Eq.(3.12)
+            #New_points_Embedding.append(np.squeeze(np.matmul(np.matmul(Ie, np.squeeze(eigvec).T), train_embedding).reshape(1, -1)))         # extend the function f to the new point .f here is the DM coordinate #Eq.(3.12)
+            New_points_Embedding.append(Ie)
 
         if extension_method == 'extension: gh mini_cld':
             dist = []
@@ -1085,9 +1140,10 @@ def Insert_New_Point(train_sono, data_test, train_embedding, epsilon_train, eigv
             '''
 
             #Haddad:
-            d1 = np.sum(W_R, axis=0).reshape(-1, 1)
+            #d1 = np.sum(W_R, axis=0).reshape(-1, 1)
             A_div_d1 = np.divide(high2low_ker, np.matlib.repmat(np.sqrt(d1), 1, high2low_ker.shape[0]).T)
             #A_div_d1 = np.divide(high2low_ker, np.matlib.repmat(d1, 1, high2low_ker.shape[0]).T)
+            #A_div_d1=high2low_ker
             d = np.sum(A_div_d1, axis=1).reshape(-1, 1)
             A1 = np.divide(A_div_d1, np.matlib.repmat(d, 1, high2low_ker.shape[1]))
             A2_nrm = A1
@@ -1098,11 +1154,19 @@ def Insert_New_Point(train_sono, data_test, train_embedding, epsilon_train, eigv
             #New_points_Embedding.append(np.squeeze(np.matmul(np.matmul(np.matmul(Ie, eigvec.T), ker_train.T), train_embedding).reshape(1, -1))) # extend the function f to the new point .f here is the DM coordinate #Eq.(3.12)
 
 
-
     New_points_Embedding = np.squeeze(np.asarray(New_points_Embedding))
     return New_points_Embedding # NoEigsUsed
 
-def out_of_sample_and_knn(train_sono, data_test, train_labels, labels_test, train_embedding, title, extension_method='extension: gh cosine', ep_factor=2, condition_number=30, ker_train=None, epsilon_train=None, eigvec=None, eigval=None, closest_to_clds_centers=None, clds_cov=None, classifier='knn', dim=19):
+def out_of_sample_and_knn(train_sono, data_test, train_labels, labels_test, train_embedding, title, extension_method='extension: gh cosine', ep_factor=2, condition_number=3, ker_train=None, epsilon_train=None, eigvec=None, eigval=None, closest_to_clds_centers=None, clds_cov=None, classifier='knn', dim=19, d1=None, eigvec_zero=None):
+
+    # for debug:
+    # np.squeeze(np.where(eigval_train_Z[0] < 3 * eigval_train_Z)) #debug
+    # np.squeeze(np.where(eigval_mini_cld_N[0] < 3 * eigval_mini_cld_N)) #debug
+    # np.squeeze(np.where(eigval_mini_cld_conc[0] < 3 * eigval_mini_cld_conc)) #debug
+    # np.squeeze(np.where(eigval_dm_conc[0] < 5 * eigval_dm_conc)) #debug
+    # np.squeeze(np.where(eigval_train_Z[0] < 10 * eigval_train_Z)) #debug
+    ind = np.squeeze(np.where(eigval[0] < condition_number * eigval))  # find the number of eigenvalues and eigenvectors to use
+
     if extension_method == 'extension: gh cosine' or extension_method == 'extension: gh mini_cld': # or extension_method == 'conc_extension: gh mini_cld':
         #dataList = np.ndarray.tolist(train_sono)
         #X = range(len(dataList))  # indices
@@ -1110,11 +1174,10 @@ def out_of_sample_and_knn(train_sono, data_test, train_labels, labels_test, trai
         #epsilon_train *= ep_factor
         #eigvec, eigval, V = np.linalg.svd(ker_train, full_matrices=True)
 
-        ind = np.squeeze(np.where(eigval[0] < condition_number * eigval))  # find the number of eigenvalues and eigenvectors to use
-        # train_embedding, eigvec, eigval = train_embedding[:, ind], eigvec[:, ind], eigval[ind]
-        psi_test = Insert_New_Point(train_sono, data_test, train_embedding[:, ind], epsilon_train, eigvec[:, ind], eigval[ind], extension_method=extension_method, closest_to_clds_centers=closest_to_clds_centers, clds_cov=clds_cov, ker_train=ker_train, dim=19)
+        #train_embedding, eigvec, eigval = train_embedding[:, ind], eigvec[:, ind], eigval[ind]
+        psi_test = Insert_New_Point(train_sono, data_test, train_embedding[:, ind], epsilon_train, eigvec[:, ind], eigval[ind], extension_method=extension_method, closest_to_clds_centers=closest_to_clds_centers, clds_cov=clds_cov, ker_train=ker_train, dim=19, d1=d1, eigvec_zero=eigvec_zero)
 
-    if extension_method=='datafold_gh':
+    if extension_method == 'datafold_gh':
         # compute the geometric harmonics from X to Psi
         import datafold.pcfold as pfold
         from datafold.dynfold import GeometricHarmonicsInterpolator as GHI
@@ -1122,13 +1185,13 @@ def out_of_sample_and_knn(train_sono, data_test, train_labels, labels_test, trai
         epsilon = 20
         # construct the GeometricHarmonicsInterpolator and fit it to the data.
         gh_interpolant = GHI(pfold.GaussianKernel(epsilon=epsilon), n_eigenpairs=n_eigenpairs, dist_kwargs=dict(cut_off=np.inf))
-        gh_interpolant.fit(train_sono, train_embedding)  # TODO Z
+        gh_interpolant.fit(train_sono, train_embedding[:, ind])  # TODO Z
         psi_test = gh_interpolant.predict(data_test)  # TODO Z
 
     if extension_method == 'datafold_lp':
         from datafold import dynfold
         LP_interpolant = dynfold.LaplacianPyramidsInterpolator(initial_epsilon=10.0, mu=1.5, residual_tol=2.0, auto_adaptive=True, alpha=0)
-        LP_interpolant.fit(train_sono, train_embedding)
+        LP_interpolant.fit(train_sono, train_embedding[:, ind])
         psi_test = LP_interpolant.predict(data_test)  # TODO Z
 
     ##################################################################################

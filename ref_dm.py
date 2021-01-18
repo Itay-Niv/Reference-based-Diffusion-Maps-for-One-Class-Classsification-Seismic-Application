@@ -21,7 +21,12 @@ jit(nopython=True)'''
 
 #K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 15, 4, 0, 0, [7,9,13,17,19], 0, 5, 'dm_ZNE', '5best' #according to A3
 #K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 15, 4, 0, 0, [2,4,8,14,16], 0, 5, 'dm_ZNE', '5best' #according to A
-K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 12, 2, 0, 0, [], 0, 19, 'dm_ZNE', 'all20'
+
+#K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 12, 2, 0, 0, [], 0, 19, 'dm_ZNE', 'all20'
+#K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 20, 2, 0, 0, [], 0, 19, 'dm_ZNE', 'all20'
+#K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 100, 2, 0, 0, [], 0, 19, 'dm_ZNE', 'all20'
+K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 25, 2, 0, 0, [], 0, 19, 'dm_ZNE', 'all20'
+
 
 # ------ ref_space Z:
 #K, ep, ep_factor, save_centers, th_1, th_2_list, balance, dim, ref_space, cloud_mode = 20, 1e2, 4, 0, 0, [0, 2, 3, 6, 8, 9, 10, 11, 12, 15, 17, 18, 19], 0, 9, 'dm_Z', '7best'
@@ -279,14 +284,14 @@ dm_ref_E = datafold_dm(ref_sono_E,    n_eigenpairs=n_eigenpairs, opt_cut_off=0) 
 #our dm
 if ref_space == 'dm_Z':
     #data, dim, ep_factor = ref_sono_Z_orig, dim, ep_factor
-    dm_ref_Z_orig, eigvec_ref_Z, eigval_ref_N, ker_ref_Z, ep_ref_Z = diffusionMapping(ref_sono_Z_orig, dim=dim, ep_factor=ep_factor)
+    dm_ref_Z_orig, eigvec_ref_Z, eigval_ref_N, ker_ref_Z, ep_ref_Z, eigvec_zero_ref_Z = diffusionMapping(ref_sono_Z_orig, dim=dim, ep_factor=ep_factor)
     dm_ref_N_orig = dm_ref_Z_orig
     dm_ref_E_orig = dm_ref_Z_orig
 
 if ref_space == 'dm_ZNE':
 
     sono_ref_ZNE_conc_wide_orig = np.concatenate((ref_sono_Z_orig, ref_sono_N_orig, ref_sono_E_orig), axis=1)
-    dm_ref_ZNE_orig, eigvec_ref_ZNE, eigval_ref_ZNE, ker_ref_ZNE, ep_ref_ZNE = diffusionMapping(sono_ref_ZNE_conc_wide_orig, dim=dim, ep_factor=ep_factor)
+    dm_ref_ZNE_orig, eigvec_ref_ZNE, eigval_ref_ZNE, ker_ref_ZNE, ep_ref_ZNE, eigvec_zero_ref_ZNE = diffusionMapping(sono_ref_ZNE_conc_wide_orig, dim=dim, ep_factor=ep_factor)
 
     '''
     dm_ref_Z_orig, eigvec_ref_Z, eigval_ref_N, ker_ref_Z, ep_ref_Z = diffusionMapping(ref_sono_Z_orig, dim=dim, ep_factor=ep_factor)
@@ -301,7 +306,7 @@ if ref_space == 'dm_ZNE':
     plt.subplot(411)
     plt.scatter(dm_ref_Z_orig[:, 0], dm_ref_Z_orig[:, 1], s=5, c='blue', label='dm_ref_Z_1196')
     plt.legend(loc="lower left")
-    plt.subplot(412)
+    plt.subplot(412) $fourr one two
     plt.scatter(dm_ref_N_orig[:, 0], dm_ref_N_orig[:, 1], s=5, c='green', label='dm_ref_N_1196')
     plt.legend(loc="lower left")
     plt.subplot(413)
@@ -342,7 +347,7 @@ if ref_space == 'dm_ZNE':
     plot_2d_embed_a(dm_ref_ZNE_orig[:, :2],    K_labels.astype(np.float), (4, 1, 4), K_colors, K_label_dict, 'dm_ZNE', fig)
 
     now = str(date.today()) + '_' + str(str(datetime.now().hour) + '_' + str(datetime.now().minute) + '_' + str(datetime.now().second))
-    fig.savefig('30_9_20/ref_sono_example/' + now + '.eps', bbox_inches = 'tight', pad_inches = 0, format='eps')  # +'.eps', format='eps')
+    fig.savefig('30_9_20/ref_sono_example/' + now + '.eps', bbox_inches = 'tight', pad_inches = 0.1, format='eps')  # +'.eps', format='eps')
 
     sonovector_to_sonogram_plot([ref_sono_Z_orig[example1]], x, y - 2, 1, save=2, title='Z brown', where_to_save = '30_9_20/ref_sono_example/1')
     sonovector_to_sonogram_plot([ref_sono_Z_orig[example2]], x, y - 2, 1, save=2, title='Z green', where_to_save = '30_9_20/ref_sono_example/2')
@@ -397,16 +402,16 @@ removed_LAT_LON, removed_sono_Z, removed_sono_N, removed_sono_E = np.asarray(rem
 
 #dm reference again, after selecting:
 if ref_space == 'dm_Z':
-    dm_ref_Z, eigvec_ref_Z, eigval_ref_N, ker_ref_Z, ep_ref_Z = diffusionMapping(ref_sono_Z, dim=dim, ep_factor=ep_factor)
+    dm_ref_Z, eigvec_ref_Z, eigval_ref_N, ker_ref_Z, ep_ref_Z, eigvec_zero_ref_Z = diffusionMapping(ref_sono_Z, dim=dim, ep_factor=ep_factor)
     dm_ref_N = dm_ref_Z
     dm_ref_E = dm_ref_Z
 
 if ref_space == 'dm_ZNE':
-    #dm_ref_Z, eigvec_ref_Z, eigval_ref_N, ker_ref_Z, ep_ref_Z = diffusionMapping(ref_sono_Z, dim=dim, ep_factor=ep_factor)
-    #dm_ref_N, eigvec_ref_N, eigval_ref_N, ker_ref_N, ep_ref_N = diffusionMapping(ref_sono_N, dim=dim, ep_factor=ep_factor)
-    #dm_ref_E, eigvec_ref_E, eigval_ref_E, ker_ref_E, ep_ref_E = diffusionMapping(ref_sono_E, dim=dim, ep_factor=ep_factor)
+    #dm_ref_Z, eigvec_ref_Z, eigval_ref_N, ker_ref_Z, ep_ref_Z, eigvec_zero_ref_Z = diffusionMapping(ref_sono_Z, dim=dim, ep_factor=ep_factor)
+    #dm_ref_N, eigvec_ref_N, eigval_ref_N, ker_ref_N, ep_ref_N, eigvec_zero_ref_N = diffusionMapping(ref_sono_N, dim=dim, ep_factor=ep_factor)
+    #dm_ref_E, eigvec_ref_E, eigval_ref_E, ker_ref_E, ep_ref_E, eigvec_zero_ref_E = diffusionMapping(ref_sono_E, dim=dim, ep_factor=ep_factor)
     sono_ref_ZNE_conc_wide = np.concatenate((ref_sono_Z, ref_sono_N, ref_sono_E), axis=1)
-    dm_ref_ZNE, eigvec_ref_ZNE, eigval_ref_ZNE, ker_ref_ZNE, ep_ref_ZNE = diffusionMapping(sono_ref_ZNE_conc_wide,dim=dim, ep_factor=ep_factor)
+    dm_ref_ZNE, eigvec_ref_ZNE, eigval_ref_ZNE, ker_ref_ZNE, ep_ref_ZNE, eigvec_zero_ref_ZNE = diffusionMapping(sono_ref_ZNE_conc_wide,dim=dim, ep_factor=ep_factor)
 
     # plot dm ref space
     '''fig = plt.figure()
@@ -417,7 +422,7 @@ if ref_space == 'dm_ZNE':
     plt.subplot(411)
     plt.scatter(dm_ref_Z[:, 0], dm_ref_Z[:, 1], s=5, c='blue', label='dm_ref_Z_selected')
     plt.legend(loc="lower left")
-    plt.subplot(412)
+    plt.subplot(412) #four one two
     plt.scatter(dm_ref_N[:, 0], dm_ref_N[:, 1], s=5, c='green', label='dm_ref_N_selected')
     plt.legend(loc="lower left")
     plt.subplot(413)
@@ -460,7 +465,7 @@ if ref_space == 'dm_ZNE':
 
 #K=15
 
-#ref_sono, train_sono, dm_ref, K, ep, x, y, show_k_means, save_centers, channel, ep_factor = ref_sono_Z, train_sono_Z, dm_ref_Z, K, ep, x, y, 0, save_centers, 'Z', 4
+#dm_ref, ref_sono, show_k_means, channel = dm_ref_Z, ref_sono_Z, 0, 'Z'
 closest_to_clds_centers_Z, closest_to_clds_centers_indices_Z, clds_cov_Z, clds_cov_pca_mean_Z, clds_indices_Z, l_labels_Z = reference_centers_cov(dm_ref_Z, ref_sono_Z, K, EIL_reference_LAT_LON, x=x, y=y, show_k_means=1, save_centers=save_centers, channel='Z', ref_space=ref_space)
 closest_to_clds_centers_N, closest_to_clds_centers_indices_N, clds_cov_N, clds_cov_pca_mean_N, clds_indices_N, l_labels_N = reference_centers_cov(dm_ref_N, ref_sono_N, K, EIL_reference_LAT_LON, x=x, y=y, show_k_means=0, save_centers=save_centers, channel='N', ref_space=ref_space)
 closest_to_clds_centers_E, closest_to_clds_centers_indices_E, clds_cov_E, clds_cov_pca_mean_E, clds_indices_E, l_labels_E = reference_centers_cov(dm_ref_E, ref_sono_E, K, EIL_reference_LAT_LON, x=x, y=y, show_k_means=0, save_centers=save_centers, channel='E', ref_space=ref_space)
@@ -518,14 +523,14 @@ train_test_sono_Z = np.asarray(EIL_month_sonograms_Z)
 train_test_sono_N = np.asarray(EIL_month_sonograms_N)
 train_test_sono_E = np.asarray(EIL_month_sonograms_E)'''
 
-#train two (first8days):
-datatrain_num = ' dataset#2 first8days'
+#train two (first11days):
+datatrain_num = ' dataset#2 first11days'
 dim=dim_orig #19
 #c_dict     = {6: 'green',       0:'black',        11:'magenta',12: 'blue',        13:'cyan',  14:'red',     15:'yellow', 16:'silver', 17:'brown', 18:'khaki', 19:'lime', 20:'orange', 8: 'pink', 9: 'gray',     10:'magenta', 7:'black'}
 #label_dict = {6:'reference',    0:'unclassified', 11:'Jordan', 12:'North_Jordan', 13:'Negev', 14:'Red_Sea', 15:'Hasharon', 16:'J_Samaria', 17:'Palmira', 18:'Cyprus', 19:'E_Medite_Sea', 20:'Suez',    8:'error', 9:'non-error', 10:'positive', 7:'negative'}
 c_dict     = {6: 'green',    0:'black',           11:'red',             8: 'pink', 9: 'gray',     10:'magenta',  7:'black', 100: 'blue'}
 label_dict = {6:'Reference Set', 0:'Training Stream Negative', 11:'Training Stream Positive', 8:'error', 9:'non-error', 10:'Positive Prediction', 7:'Negative Prediction', 100:'Test Points'}
-train_test_labels           = np.reshape(EIL_month_labels[:190],EIL_month_labels[:190].shape[0],)
+train_test_labels           = np.reshape(EIL_month_labels[:412],EIL_month_labels[:412].shape[0],)
 train_test_pos_neg_labels = []
 for i in range(train_test_labels.shape[0]):
     if train_test_labels[i] == 11:
@@ -539,9 +544,9 @@ for i in range(train_test_labels.shape[0]):
     elif train_test_labels[i] == 0 or train_test_labels[i] == 12 or train_test_labels[i] == 13 or train_test_labels[i] == 14 or train_test_labels[i] == 15 or train_test_labels[i] == 16 or train_test_labels[i] == 17 or train_test_labels[i] == 18 or train_test_labels[i] == 19 or train_test_labels[i] == 20:
         train_test_labels_final.append(0)
 train_test_labels = train_test_labels_final
-train_test_sono_Z = np.asarray(EIL_month_sonograms_Z[:190])
-train_test_sono_N = np.asarray(EIL_month_sonograms_N[:190])
-train_test_sono_E = np.asarray(EIL_month_sonograms_E[:190])
+train_test_sono_Z = np.asarray(EIL_month_sonograms_Z[:412])
+train_test_sono_N = np.asarray(EIL_month_sonograms_N[:412])
+train_test_sono_E = np.asarray(EIL_month_sonograms_E[:412])
 
 #train THREE:
 '''datatrain_num = ' dataset#3'
@@ -619,9 +624,9 @@ dm_train_E = umap.UMAP(metric='cosine',random_state=0, n_components=dim).fit_tra
 
 #our dm
 #data=train_sono_Z
-dm_train_Z, eigvec_train_Z, eigval_train_Z, ker_train_Z, ep_train_Z = diffusionMapping(train_sono_Z, dim=dim, ep_factor=ep_factor)
-dm_train_N, eigvec_train_N, eigval_train_N, ker_train_N, ep_train_N = diffusionMapping(train_sono_N, dim=dim, ep_factor=ep_factor)
-dm_train_E, eigvec_train_E, eigval_train_E, ker_train_E, ep_train_E = diffusionMapping(train_sono_E, dim=dim, ep_factor=ep_factor)
+dm_train_Z, eigvec_train_Z, eigval_train_Z, ker_train_Z, ep_train_Z, eigvec_zero_train_Z = diffusionMapping(train_sono_Z, dim=dim, ep_factor=ep_factor)
+dm_train_N, eigvec_train_N, eigval_train_N, ker_train_N, ep_train_N, eigvec_zero_train_N = diffusionMapping(train_sono_N, dim=dim, ep_factor=ep_factor)
+dm_train_E, eigvec_train_E, eigval_train_E, ker_train_E, ep_train_E, eigvec_zero_train_E = diffusionMapping(train_sono_E, dim=dim, ep_factor=ep_factor)
 
 #datafold DM
 '''dm_train_Z = datafold_dm(train_sono_Z, n_eigenpairs=n_eigenpairs, opt_cut_off=0)
@@ -635,9 +640,9 @@ dm_train_E = datafold_dm(train_sono_E, n_eigenpairs=n_eigenpairs, opt_cut_off=0)
 #train_sono, closest_to_clds_centers, clds_cov = train_sono_Z, closest_to_clds_centers_Z, clds_cov_Z
 #train_sono, closest_to_clds_centers, clds_cov = train_sono_N, closest_to_clds_centers_N, clds_cov_N
 #train_sono, closest_to_clds_centers, clds_cov = train_sono_E, closest_to_clds_centers_E, clds_cov_E
-W2_Z, A2_Z, d2_Z, W_I_Z, ep_mini_cld_Z, most_similar_cld_index_Z = reference_training(train_sono_Z, closest_to_clds_centers_Z, clds_cov_Z, K, ep, ep_factor=ep_factor)
-W2_N, A2_N, d2_N, W_I_N, ep_mini_cld_N, most_similar_cld_index_N = reference_training(train_sono_N, closest_to_clds_centers_N, clds_cov_N, K, ep, ep_factor=ep_factor)
-W2_E, A2_E, d2_E, W_I_E, ep_mini_cld_E, most_similar_cld_index_E = reference_training(train_sono_E, closest_to_clds_centers_E, clds_cov_E, K, ep, ep_factor=ep_factor)
+W2_Z, A2_Z, d1_Z, W_I_Z, ep_mini_cld_Z, most_similar_cld_index_Z = reference_training(train_sono_Z, closest_to_clds_centers_Z, clds_cov_Z, K, ep, ep_factor=ep_factor)
+W2_N, A2_N, d1_N, W_I_N, ep_mini_cld_N, most_similar_cld_index_N = reference_training(train_sono_N, closest_to_clds_centers_N, clds_cov_N, K, ep, ep_factor=ep_factor)
+W2_E, A2_E, d1_E, W_I_E, ep_mini_cld_E, most_similar_cld_index_E = reference_training(train_sono_E, closest_to_clds_centers_E, clds_cov_E, K, ep, ep_factor=ep_factor)
 
 title = 'dim='+str(dim)+ ' ref_space='+str(ref_space)+ ' datatrain_num='+str(datatrain_num) + ' ep='+str(ep) + ' ep_fc='+str(ep_factor)+ ' K='+str(K) + ' nT='+str(nT) + ' OL='+str(OverlapPr) + ' SR='+str(SampRange)+ ' th_1='+str(th_1)+ ' th_2_list='+str(th_2_list)+ ' balance='+str(balance)
 
@@ -719,7 +724,7 @@ dm_multi, ker_multi = diffusionMapping_MultiView(ker_train_Z, ker_train_N, ker_t
 
 # multi-kernel fusion W2 of the 3 channels
 A2 = np.concatenate((A2_Z, A2_N, A2_E), axis=1)
-d2 = np.concatenate((d2_Z, d2_N, d2_E), axis=0)
+d1 = np.concatenate((d1_Z, d1_N, d1_E), axis=0)
 
 k12 = np.matmul(W2_Z, W2_N)
 k21 = np.matmul(W2_N, W2_Z)
@@ -744,28 +749,30 @@ P_hat = np.concatenate((P_hat_row1, P_hat_row2, P_hat_row3), axis=0)
 W2 = P_hat
 
 # ------------------------------------------
-#W2, A2, d2 = W2_Z, A2_Z, d2_Z
-mini_cld_train_multi, eigvec_mini_cld_multi, eigen_val_mini_cld_multi, A2_nrm_multi = reference_final_eigenvectors_and_normalization(W2, A2, d2)
-mini_cld_train_Z,     eigvec_mini_cld_Z, eigval_mini_cld_Z, A2_nrm_Z = reference_final_eigenvectors_and_normalization(W2_Z, A2_Z, d2_Z)
-mini_cld_train_N,     eigvec_mini_cld_N, eigval_mini_cld_N, A2_nrm_N = reference_final_eigenvectors_and_normalization(W2_N, A2_N, d2_N)
-mini_cld_train_E,     eigvec_mini_cld_E, eigval_mini_cld_E, A2_nrm_E = reference_final_eigenvectors_and_normalization(W2_E, A2_E, d2_E)
+#W2, A2, d1 = W2_Z, A2_Z, d1_Z
+mini_cld_train_multi, eigvec_mini_cld_multi, eigen_val_mini_cld_multi, A2_nrm_multi = reference_final_eigenvectors_and_normalization(W2, A2, d1)
+mini_cld_train_Z,     eigvec_mini_cld_Z, eigval_mini_cld_Z, A2_nrm_Z = reference_final_eigenvectors_and_normalization(W2_Z, A2_Z, d1_Z)
+mini_cld_train_N,     eigvec_mini_cld_N, eigval_mini_cld_N, A2_nrm_N = reference_final_eigenvectors_and_normalization(W2_N, A2_N, d1_N)
+mini_cld_train_E,     eigvec_mini_cld_E, eigval_mini_cld_E, A2_nrm_E = reference_final_eigenvectors_and_normalization(W2_E, A2_E, d1_E)
 
 
 # ---------------Concatenation---------------------------
-mini_cld_train_conc_wide = np.concatenate((mini_cld_train_Z[:,:dim], mini_cld_train_N[:,:dim], mini_cld_train_E[:,:dim]), axis=1)
-eigvec_mini_cld_conc_long = np.concatenate((eigvec_mini_cld_Z[:,:dim], eigvec_mini_cld_N[:,:dim], eigvec_mini_cld_E[:,:dim]), axis=0)
-eigval_mini_cld_conc_long = np.concatenate((eigval_mini_cld_Z[:dim], eigval_mini_cld_N[:dim], eigval_mini_cld_E[:dim]))
-#A2_mini_cld_conc_wide = np.concatenate((A2_Z, A2_N, A2_E), axis=1)
-ep_mini_cld_conc_wide = np.concatenate(([ep_mini_cld_Z], [ep_mini_cld_N], [ep_mini_cld_E]))
-closest_to_clds_centers_conc_long = np.concatenate((closest_to_clds_centers_Z, closest_to_clds_centers_N, closest_to_clds_centers_E), axis=0)
-clds_cov_conc_long = np.concatenate((clds_cov_Z, clds_cov_N, clds_cov_E), axis=0)
-
-mini_cld_train_conc_dm, eigvec_mini_cld_conc, eigval_mini_cld_conc, ker_mini_cld_conc, ep_mini_cld_conc = diffusionMapping(mini_cld_train_conc_wide, dim=dim, ep_factor=ep_factor)
+ind_Z = np.squeeze(np.where(eigval_mini_cld_Z[0] < 8 * eigval_mini_cld_Z))
+ind_N = np.squeeze(np.where(eigval_mini_cld_N[0] < 10 * eigval_mini_cld_N))
+ind_E = np.squeeze(np.where(eigval_mini_cld_E[0] < 8 * eigval_mini_cld_E))
+#mini_cld_train_conc_wide = np.concatenate((mini_cld_train_Z[:,:dim], mini_cld_train_N[:,:dim], mini_cld_train_E[:,:dim]), axis=1)
+mini_cld_train_conc_wide = np.concatenate((mini_cld_train_Z[:,ind_Z], mini_cld_train_N[:,ind_N], mini_cld_train_E[:,ind_E]), axis=1)
+mini_cld_train_conc_dm, eigvec_mini_cld_conc, eigval_mini_cld_conc, ker_mini_cld_conc, ep_mini_cld_conc, eigvec_zero_mini_cld_conc = diffusionMapping(mini_cld_train_conc_wide, dim=dim, ep_factor=ep_factor)
 #mini_cld_conc_dm = datafold_dm(mini_cld_conc_wide, n_eigenpairs=n_eigenpairs, opt_cut_off=0)
 #mini_cld_train_conc_dm = umap.UMAP(metric='cosine',random_state=0, n_components=dim).fit_transform(mini_cld_train_conc_wide)
 
-dm_train_conc_wide = np.concatenate((dm_train_Z[:,:dim], dm_train_N[:,:dim], dm_train_E[:,:dim]), axis=1)
-dm_train_conc_dm, eigvec_dm_conc, eigval_dm_conc, ker_dm_conc, ep_dm_conc = diffusionMapping(dm_train_conc_wide, dim=dim, ep_factor=ep_factor)
+
+ind_Z_dm = np.squeeze(np.where(eigval_train_Z[0] < 50 * eigval_train_Z))
+ind_N_dm = np.squeeze(np.where(eigval_train_N[0] < 50 * eigval_train_N))
+ind_E_dm = np.squeeze(np.where(eigval_train_E[0] < 50 * eigval_train_E))
+#dm_train_conc_wide = np.concatenate((dm_train_Z[:,:dim], dm_train_N[:,:dim], dm_train_E[:,:dim]), axis=1)
+dm_train_conc_wide = np.concatenate((dm_train_Z[:,ind_Z_dm], dm_train_N[:,ind_N_dm], dm_train_E[:,ind_E_dm]), axis=1)
+dm_train_conc_dm, eigvec_dm_conc, eigval_dm_conc, ker_dm_conc, ep_dm_conc, eigvec_zero_dm_conc = diffusionMapping(dm_train_conc_wide, dim=dim, ep_factor=ep_factor)
 #dm_train_conc_dm = umap.UMAP(metric='cosine',random_state=0, n_components=dim).fit_transform(dm_train_conc_wide)
 
 # -------------SELECTING VECTORS-------------------------
@@ -782,16 +789,29 @@ mini_cld_train_conc_dm23 = np.concatenate((np.reshape(mini_cld_train_conc_dm[:,1
 '''labels_ref_kmeans = l_labels_Z + 20
 c_dict     = {6: 'green',       0:'black',        1:'magenta',     2: 'blue',    3:'cyan', 4:'red',        5:'yellow', 8: 'pink', 9: 'gray',     10:'magenta',  7:'black',
                 20: 'green', 21: 'dimgray', 22: 'magenta', 23: 'gray', 24: 'deeppink', 25: 'yellow', 26: 'tomato',
-                27: 'cyan', 28: 'red', 29: 'orange', 30: 'blue', 31: 'brown', 32: 'deepskyblue', 33: 'lime', 34: 'navy',
+                27: 'cyan', 28: 'red', 29: 'orange', 30: 'blue', 31: 'brown', 32: 'deepskyblue', 33: 'lime', 34: 'navy', #three four
                 35: 'khaki', 36: 'silver', 37: 'tan', 38: 'teal', 39: 'olive'}
 label_dict = {6:'reference',    0:'unclassified', 1:'Eshidiya EX', 2:'Amman EX', 3:'TS',   4:'Earthquake', 5:'SEA',    8:'error', 9:'non-error', 10:'positive', 7:'negative',
                 20: '0', 21: '1', 22: '2', 23: '3', 24: '4', 25: '5', 26: '6', 27: '7',
-                28: '8', 29: '9', 30: '10', 31: '11', 32: '12', 33: '13', 34: '14', 35: '15',
+                28: '8', 29: '9', 30: '10', 31: '11', 32: '12', 33: '13', 34: '14', 35: '15', #three four
                 36: '16', 37: '17', 38: '18', 39: '19'}
 train_labels           = np.concatenate((labels_ref_kmeans, np.asarray([0]*EIL_10days_labels.shape[0])))
 '''
 
 
+
+# Plots: #11days
+xlim_dm          = [-0.1, 0.12]
+ylim_dm          = [-0.07, 0.07]
+
+xlim_dm_conc     = [-0.15, 0.22]
+ylim_dm_conc     = [-0.12, 0.12]
+
+xlim_ref_dm      = [-0.072, 0.075]
+ylim_ref_dm      = [-0.1, 0.12]
+
+xlim_ref_dm_conc = [-0.11, 0.13]
+ylim_ref_dm_conc = [-0.1, 0.1]
 
 # TRAIN Plots:
 fig = plt.figure(figsize=(20,8))
@@ -803,51 +823,47 @@ SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
 #plot_2d_embed_a(mini_cld_train_multi_selected,         train_labels,   (3,3,7),  c_dict, label_dict, 'mini_cld_train_multi ', fig)
 
 plot_2d_embed_a(dm_train_Z[:,:2]*-1,        train_labels,   (2,5,1),  c_dict, label_dict, 'dm_Z  ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-#plt.xlim(-0.009, 0.009)
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
 plot_2d_embed_a(dm_train_N[:,:2]*-1,        train_labels,   (2,5,2),  c_dict, label_dict, 'dm_N ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-#plt.xlim(-0.009, 0.009)
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
 plot_2d_embed_a(dm_train_E[:,:2]*-1,        train_labels,   (2,5,3),  c_dict, label_dict, 'dm_E ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-#plt.xlim(-0.009, 0.009)
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
 #plot_2d_embed_a(selection_2d(dm_multi),  train_labels,   (2,5,4),  c_dict, label_dict, 'dm_ZNE_multi ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plot_2d_embed_a(dm_train_conc_dm[:,:2],   train_labels,   (2,5,4),  c_dict, label_dict, 'dm_ZNE_concatenation  ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB), legend=1)
-plt.xlim(-0.005, 0.005)  #8days -1
-plt.ylim(-0.004, 0.004)
+plot_2d_embed_a(dm_train_conc_dm[:,:2]*-1,   train_labels,   (2,5,4),  c_dict, label_dict, 'dm_ZNE_concatenation  ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB), legend=1)
+plt.xlim(xlim_dm_conc[0], xlim_dm_conc[1])
+plt.ylim(ylim_dm_conc[0], ylim_dm_conc[1])
 
 #mini_cld_train_Z_toplot = np.concatenate((np.reshape(mini_cld_train_Z[:,0],(mini_cld_train_Z.shape[0],1)), np.reshape(mini_cld_train_Z[:,1],(mini_cld_train_Z.shape[0],1))*-1), axis=1)
 #mini_cld_train_N_toplot = np.concatenate((np.reshape(mini_cld_train_N[:,0],(mini_cld_train_N.shape[0],1)), np.reshape(mini_cld_train_N[:,1],(mini_cld_train_N.shape[0],1))*-1), axis=1)
 #mini_cld_train_E_toplot = np.concatenate((np.reshape(mini_cld_train_E[:,0],(mini_cld_train_E.shape[0],1))*-1, np.reshape(mini_cld_train_E[:,1],(mini_cld_train_E.shape[0],1))*-1), axis=1)
 #plot_2d_embed_a(mini_cld_train_Z_toplot,             train_labels,   (2,5,6),  c_dict, label_dict, 'ref_dm_Z_cords12  ', fig)
 plot_2d_embed_a(mini_cld_train_Z[:,:2]*-1,             train_labels,   (2,5,6),  c_dict, label_dict, 'ref_dm_Z ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 #plot_2d_embed_a(mini_cld_train_N_toplot[:,:2],             train_labels,   (2,5,7),  c_dict, label_dict, 'ref_dm_N_cords12  ', fig)
-plot_2d_embed_a(mini_cld_train_N[:,:2]*-1,             train_labels,   (2,5,7),  c_dict, label_dict, 'ref_dm_N  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plot_2d_embed_a(mini_cld_train_N[:,:2],             train_labels,   (2,5,7),  c_dict, label_dict, 'ref_dm_N  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 #plot_2d_embed_a(mini_cld_train_E_toplot[:,:2],             train_labels,   (3,3,8),  c_dict, label_dict, 'ref_dm_E_cords12  ', fig, legend=1)
 plot_2d_embed_a(mini_cld_train_E[:,:2]*-1,             train_labels,   (2,5,8),  c_dict, label_dict, 'ref_dm_E  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB)) #, legend=1
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 
 #plot_2d_embed_a(mini_cld_train_multi[:,:2],   train_labels,   (2,5,9),  c_dict, label_dict, 'ref_dm_ZNE_multi ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-#plt.xlim(-0.6, 0.6) #8days
-#plt.ylim(-0.10, 0.15) #8days
+#plt.xlim(-0.6, 0.6) #11days
+#plt.ylim(-0.10, 0.15) #11days
 
 plot_2d_embed_a(mini_cld_train_conc_dm[:,:2]*-1,   train_labels,   (2,5,9),  c_dict, label_dict, 'ref_dm_ZNE_concatenation ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.002, 0.003) #8days -1
-plt.ylim(-0.0013, 0.0015) #8days
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
 ##plt.xlim(-0.01, 0.012) #others
 
 now = str(date.today())+'_' + str(str(datetime.now().hour)+'_'+str(datetime.now().minute)+'_'+str(datetime.now().second))
 plt.savefig('30_9_20/training/' +now+ 'train - ' + datatrain_num  + ' cld_mode=' + cloud_mode +'.png') #+'.eps', format='eps')
-#plt.savefig('30_9_20/training/' +now+ 'train - ' + datatrain_num  + ' cld_mode=' + cloud_mode + '.eps', bbox_inches = 'tight', pad_inches = 0, format='eps')  # +'.eps', format='eps')
+#plt.savefig('30_9_20/training/' +now+ 'train - ' + datatrain_num  + ' cld_mode=' + cloud_mode + '.eps', bbox_inches = 'tight', pad_inches = 0.1, format='eps')  # +'.eps', format='eps')
 plt.close(fig)    #plt.show()
 print('train saved')
 
@@ -951,13 +967,14 @@ for i in range(mini_cld_train_Z.shape[0]):
 # --------------------- TEST ------------------------------
 classifier = 'knn'     # knn or LogisticRegression
 title_orig = title
-title1 = 'dm_Z' + '  extension:gh cosine'
+title1 = 'dm' + '  extension:gh cosine'
 #title2 = '' + ''
 title3 = 'mini_cld_Z' + '  extension:gh mini_cld'
 title4 = 'mini_cld_N' + '  extension:gh mini_cld'
 title5 = 'mini_cld_E' + '  extension:gh mini_cld'
 title6 = 'mini_cld_conc' + '  extension:gh mini_cld_ZNE + DM_6to2'
 title7 = 'mini_cld_conc' + '  extension:gh cosine'
+
 #testset16to20
 '''test_labels = np.concatenate((np.asarray([7]*EIL_10days_sonograms_Z_list_test_without_eshidiya.shape[0]), np.asarray([10]*2)))
 test_sono_Z = np.concatenate((EIL_10days_sonograms_Z_list_test_without_eshidiya, eshidiya_Z[3:]))
@@ -978,28 +995,31 @@ for i in range(EIL_month_labels.shape[0]):
         test_pos_neg_labels.append(7)
 test_sono_Z = np.asarray(EIL_month_sonograms_Z)
 test_sono_N = np.asarray(EIL_month_sonograms_N)
-test_sono_E = np.asarray(EIL_month_sonograms_E) '''
+test_sono_E = np.asarray(EIL_month_sonograms_E)
+fuzzy_excel_index = 412 + 3
+label_dict_fuzzy = {6: 'reference', 0: 'unclassified', 11: 'Jordan', 12: 'North_Jordan', 13: 'Negev', 14: 'Red_Sea', 15: 'Hasharon', 16: 'J_Samaria', 17: 'Palmira', 18: 'Cyprus', 19: 'E_Medite_Sea', 20: 'Suez', 8: 'error', 9: 'non-error', 10: 'positive', 7: 'negative'}
+'''
 
 #march2011 (left23days):
-'''datatest_num = ' dataset#2 left23days'
+datatest_num = ' dataset#2 left23days'
 c_dict     = {6: 'green',       0:'black',        11:'magenta',12: 'blue',        13:'cyan',  14:'red',     15:'yellow', 16:'silver', 17:'brown', 18:'khaki', 19:'lime', 20:'orange', 8: 'pink', 9: 'gray',     10:'magenta', 7:'black'}
 label_dict = {6:'reference',    0:'unclassified', 11:'Jordan', 12:'North_Jordan', 13:'Negev', 14:'Red_Sea', 15:'Hasharon', 16:'J_Samaria', 17:'Palmira', 18:'Cyprus', 19:'E_Medite_Sea', 20:'Suez',    8:'error', 9:'non-error', 10:'positive', 7:'negative'}
-test_labels           = np.reshape(EIL_month_labels[190:],EIL_month_labels[190:].shape[0],)
+test_labels           = np.reshape(EIL_month_labels[412:],EIL_month_labels[412:].shape[0],)
 test_pos_neg_labels = []
 for i in range(test_labels.shape[0]):
     if test_labels[i] == 11:
         test_pos_neg_labels.append(10)
     else:
         test_pos_neg_labels.append(7)
-test_sono_Z = np.asarray(EIL_month_sonograms_Z[190:])
-test_sono_N = np.asarray(EIL_month_sonograms_N[190:])
-test_sono_E = np.asarray(EIL_month_sonograms_E[190:])
-fuzzy_excel_index = 190+3
+test_sono_Z = np.asarray(EIL_month_sonograms_Z[412:])
+test_sono_N = np.asarray(EIL_month_sonograms_N[412:])
+test_sono_E = np.asarray(EIL_month_sonograms_E[412:])
+fuzzy_excel_index = 412+3
 label_dict_fuzzy = {6:'reference',    0:'unclassified', 11:'Jordan', 12:'North_Jordan', 13:'Negev', 14:'Red_Sea', 15:'Hasharon', 16:'J_Samaria', 17:'Palmira', 18:'Cyprus', 19:'E_Medite_Sea', 20:'Suez',    8:'error', 9:'non-error', 10:'positive', 7:'negative'}
-'''
+
 
 #april2015 (10days):
-datatest_num = ' dataset#1'
+'''datatest_num = ' dataset#1'
 c_dict     = {6: 'green',       0:'black',        1:'magenta',     2: 'blue',    3:'cyan', 4:'red',        5:'yellow', 8: 'pink', 9: 'gray',     10:'magenta',  7:'black'}
 label_dict = {6:'reference',    0:'unclassified', 1:'Eshidiya EX', 2:'Amman EX', 3:'TS',   4:'Earthquake', 5:'SEA',    8:'error', 9:'non-error', 10:'positive', 7:'negative'}
 test_labels           = np.reshape(EIL_10days_labels,EIL_10days_labels.shape[0],)
@@ -1014,6 +1034,7 @@ test_sono_N = np.asarray(EIL_10days_sonograms_N)
 test_sono_E = np.asarray(EIL_10days_sonograms_E)
 fuzzy_excel_index = 3
 label_dict_fuzzy = label_dict = {6:'reference',    0:'unclassified', 1:'Eshidiya EX', 2:'Amman EX', 3:'TS',   4:'Earthquake', 5:'SEA',    8:'error', 9:'non-error', 10:'positive', 7:'negative'}
+'''
 
 #removed:
 '''datatest_num = ' ref_removed_842'
@@ -1036,22 +1057,31 @@ test_sono_E = np.concatenate((ref_sono_E, test_sono_E))
 '''
 train_sono, data_test, train_labels, labels_test, train_embedding =  train_sono_Z,       test_sono_Z,       train_pos_neg_labels, test_pos_neg_labels, dm_train_Z
 title, extension_method, ep_factor, condition_number, ker_train =   title1, 'extension: gh cosine', 2, 30 ,        ker_train_Z,
-epsilon_train, eigvec, eigval =   ep_train_Z, eigvec_train_Z, eigval_train_Z 
+epsilon_train, eigvec, eigval, eigvec_zero=   ep_train_Z, eigvec_train_Z, eigval_train_Z, eigvec_zero_train_Z 
    '''
-dm_test_Z, dm_error_Z, dm_labels_pred_Z, dm_labels_error_Z, dm_Z_confusion_matrix = out_of_sample_and_knn(train_sono_Z,       test_sono_Z,       train_pos_neg_labels, test_pos_neg_labels, dm_train_Z,             title1, extension_method='extension: gh cosine',          ker_train=ker_train_Z,       epsilon_train=ep_train_Z,         eigvec=eigvec_train_Z,         eigval=eigval_train_Z, classifier=classifier)
+dm_test_Z, dm_error_Z, dm_labels_pred_Z, dm_labels_error_Z, dm_Z_confusion_matrix = out_of_sample_and_knn(train_sono_Z,       test_sono_Z,       train_pos_neg_labels, test_pos_neg_labels, dm_train_Z,             title1+'_Z', extension_method='datafold_gh',          ker_train=ker_train_Z,       epsilon_train=ep_train_Z,         eigvec=eigvec_train_Z,         eigval=eigval_train_Z, classifier=classifier, eigvec_zero=eigvec_zero_train_Z, condition_number=50)
+dm_test_N, dm_error_N, dm_labels_pred_N, dm_labels_error_N, dm_N_confusion_matrix = out_of_sample_and_knn(train_sono_N,       test_sono_N,       train_pos_neg_labels, test_pos_neg_labels, dm_train_N,             title1+'_N', extension_method='datafold_gh',          ker_train=ker_train_N,       epsilon_train=ep_train_N,         eigvec=eigvec_train_N,         eigval=eigval_train_N, classifier=classifier, eigvec_zero=eigvec_zero_train_N, condition_number=50)
+dm_test_E, dm_error_E, dm_labels_pred_E, dm_labels_error_E, dm_E_confusion_matrix = out_of_sample_and_knn(train_sono_E,       test_sono_E,       train_pos_neg_labels, test_pos_neg_labels, dm_train_E,             title1+'_E', extension_method='datafold_gh',          ker_train=ker_train_E,       epsilon_train=ep_train_E,         eigvec=eigvec_train_E,         eigval=eigval_train_E, classifier=classifier, eigvec_zero=eigvec_zero_train_E, condition_number=50)
+
+dm_test_conc_9 = np.concatenate((dm_test_Z[:,ind_Z_dm], dm_test_N[:,ind_N_dm], dm_test_E[:,ind_E_dm]), axis=1)
+dm_conc_test, dm_conc_error, dm_conc_labels_pred, dm_conc_labels_error, dm_conc_confusion_matrix   = out_of_sample_and_knn(dm_train_conc_wide,       dm_test_conc_9,       train_pos_neg_labels, test_pos_neg_labels, dm_train_conc_dm,       title1 +'_ZNE', extension_method='datafold_gh', ker_train=ker_dm_conc, epsilon_train=ep_dm_conc, eigvec=eigvec_dm_conc, eigval=eigval_dm_conc, classifier=classifier, dim=dim, eigvec_zero=eigvec_zero_dm_conc, condition_number=50)
+
 #dm_multi_test,           dm_multi_error,            dm_multi_labels_pred,            dm_multi_labels_error, dm_multi_confusion_matrix           = out_of_sample_and_knn(train_ch_conc_wide, test_ch_conc_wide, train_pos_neg_labels, test_pos_neg_labels, selection_2d(dm_multi),       title2, extension_method='extension: gh cosine',          ker_train=ker_multi,         epsilon_train=, eigvec=None, eigval=None)
 
 '''
 train_sono, data_test, train_labels, labels_test, train_embedding =  train_sono_Z, test_sono_Z, train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_Z #[:,:dim]
-title, extension_method, ep_factor, condition_number, ker_train =  title5, 'extension: gh mini_cld', 2, 30, A2_nrm_Z
+title, extension_method, ep_factor, condition_number, ker_train, d1 =  title5, 'extension: gh mini_cld', 2, 8, A2_nrm_Z, d1_Z
 epsilon_train, eigvec, eigval, closest_to_clds_centers, clds_cov =   ep_mini_cld_Z, eigvec_mini_cld_Z, eigval_mini_cld_Z, closest_to_clds_centers_Z, clds_cov_Z
   '''
-mini_cld_test_Z,   mini_cld_error_Z,   mini_cld_labels_pred_Z,   mini_cld_labels_error_Z, mini_cld_Z_confusion_matrix = out_of_sample_and_knn(train_sono_Z,       test_sono_Z,       train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_Z,       title3, extension_method='extension: gh mini_cld', ker_train=A2_nrm_Z, epsilon_train=ep_mini_cld_Z, eigvec=eigvec_mini_cld_Z, eigval=eigval_mini_cld_Z, closest_to_clds_centers=closest_to_clds_centers_Z, clds_cov=clds_cov_Z, classifier=classifier, dim=dim)
-mini_cld_test_N,   mini_cld_error_N,   mini_cld_labels_pred_N,   mini_cld_labels_error_N, mini_cld_N_confusion_matrix   = out_of_sample_and_knn(train_sono_N,       test_sono_N,       train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_N,       title4, extension_method='extension: gh mini_cld', ker_train=A2_nrm_N, epsilon_train=ep_mini_cld_N, eigvec=eigvec_mini_cld_N, eigval=eigval_mini_cld_N, closest_to_clds_centers=closest_to_clds_centers_N, clds_cov=clds_cov_N, classifier=classifier, dim=dim)
-mini_cld_test_E,   mini_cld_error_E,   mini_cld_labels_pred_E,   mini_cld_labels_error_E, mini_cld_E_confusion_matrix   = out_of_sample_and_knn(train_sono_E,       test_sono_E,       train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_E,       title5, extension_method='extension: gh mini_cld', ker_train=A2_nrm_E, epsilon_train=ep_mini_cld_E, eigvec=eigvec_mini_cld_E, eigval=eigval_mini_cld_E, closest_to_clds_centers=closest_to_clds_centers_E, clds_cov=clds_cov_E, classifier=classifier, dim=dim)
+mini_cld_test_Z,   mini_cld_error_Z,   mini_cld_labels_pred_Z,   mini_cld_labels_error_Z, mini_cld_Z_confusion_matrix = out_of_sample_and_knn(train_sono_Z,       test_sono_Z,       train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_Z,       title3, extension_method='extension: gh mini_cld', ker_train=A2_nrm_Z, epsilon_train=ep_mini_cld_Z, eigvec=eigvec_mini_cld_Z, eigval=eigval_mini_cld_Z, closest_to_clds_centers=closest_to_clds_centers_Z, clds_cov=clds_cov_Z, classifier=classifier, dim=dim, d1=d1_Z, condition_number=8) # 50 #5(toep20)
+mini_cld_test_N,   mini_cld_error_N,   mini_cld_labels_pred_N,   mini_cld_labels_error_N, mini_cld_N_confusion_matrix   = out_of_sample_and_knn(train_sono_N,       test_sono_N,       train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_N,       title4, extension_method='extension: gh mini_cld', ker_train=A2_nrm_N, epsilon_train=ep_mini_cld_N, eigvec=eigvec_mini_cld_N, eigval=eigval_mini_cld_N, closest_to_clds_centers=closest_to_clds_centers_N, clds_cov=clds_cov_N, classifier=classifier, dim=dim, d1=d1_N, condition_number=10) #3
+mini_cld_test_E,   mini_cld_error_E,   mini_cld_labels_pred_E,   mini_cld_labels_error_E, mini_cld_E_confusion_matrix   = out_of_sample_and_knn(train_sono_E,       test_sono_E,       train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_E,       title5, extension_method='extension: gh mini_cld', ker_train=A2_nrm_E, epsilon_train=ep_mini_cld_E, eigvec=eigvec_mini_cld_E, eigval=eigval_mini_cld_E, closest_to_clds_centers=closest_to_clds_centers_E, clds_cov=clds_cov_E, classifier=classifier, dim=dim, d1=d1_E, condition_number=8) #3
+#mini_cld_test_conc_9 = np.concatenate((mini_cld_test_Z[:,:dim], mini_cld_test_N[:,:dim], mini_cld_test_E[:,:dim]), axis=1)
+mini_cld_test_conc_9 = np.concatenate((mini_cld_test_Z[:,ind_Z], mini_cld_test_N[:,ind_N], mini_cld_test_E[:,ind_E]), axis=1)
+mini_cld_conc_test, mini_cld_conc_error, mini_cld_conc_labels_pred, mini_cld_conc_labels_error, mini_cld_conc_confusion_matrix   = out_of_sample_and_knn(mini_cld_train_conc_wide,       mini_cld_test_conc_9,       train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_conc_dm,       title7, extension_method='datafold_gh', ker_train=ker_mini_cld_conc, epsilon_train=ep_mini_cld_conc, eigvec=eigvec_mini_cld_conc, eigval=eigval_mini_cld_conc, classifier=classifier, dim=dim, eigvec_zero=eigvec_zero_mini_cld_conc, condition_number=7) #7
 
-mini_cld_test_conc_9 = np.concatenate((mini_cld_test_Z[:,:dim], mini_cld_test_N[:,:dim], mini_cld_test_E[:,:dim]), axis=1)
-mini_cld_conc_test, mini_cld_conc_error, mini_cld_conc_labels_pred, mini_cld_conc_labels_error, mini_cld_conc_confusion_matrix   = out_of_sample_and_knn(mini_cld_train_conc_wide[:,:mini_cld_test_conc_9.shape[1]],       mini_cld_test_conc_9,       train_pos_neg_labels, test_pos_neg_labels, mini_cld_train_conc_dm,       title7, extension_method='extension: gh cosine', ker_train=ker_mini_cld_conc, epsilon_train=ep_mini_cld_conc, eigvec=eigvec_mini_cld_conc, eigval=eigval_mini_cld_conc, classifier=classifier, dim=dim)
+mini_cld_conc_test23 = np.concatenate((np.reshape(mini_cld_conc_test[:,1],(mini_cld_conc_test[:,0].shape[0],1)), np.reshape(mini_cld_conc_test[:,2],(mini_cld_conc_test[:,0].shape[0],1))), axis=1)
+
 
 # ----------------- PLOT TEST ----------------------------
 fig = plt.figure(figsize=(20,15))
@@ -1094,14 +1124,14 @@ print('test saved')
 c_dict     = {6: 'green',    0:'black',           11:'red',             8: 'pink', 9: 'gray',     10:'magenta',             7:'blue',               100: 'blue'}
 label_dict = {6:'Reference set', 0:'Training Stream Negative', 11:'Training Stream Positive', 8:'error', 9:'non-error', 10:'Test Stream Positive', 7:'Test Stream Negative', 100:'Test Points'}
 
-test_paper_labels           = np.reshape(EIL_month_labels[:190],EIL_month_labels[:190].shape[0],)
+test_paper_labels           = np.reshape(EIL_month_labels[:412],EIL_month_labels[:412].shape[0],)
 test_paper_labels_final = []
 for i in range(test_paper_labels.shape[0]):
     if test_paper_labels[i] == 11:
         test_paper_labels_final.append(11)
     elif test_paper_labels[i] == 0 or test_paper_labels[i] == 12 or test_paper_labels[i] == 13 or test_paper_labels[i] == 14 or test_paper_labels[i] == 15 or test_paper_labels[i] == 16 or test_paper_labels[i] == 17 or test_paper_labels[i] == 18 or test_paper_labels[i] == 19 or test_paper_labels[i] == 20:
         test_paper_labels_final.append(0)
-#test_labels1 = np.concatenate((np.asarray([100]*EIL_month_labels[190:].shape[0]), np.asarray([6]*ref_sono_Z.shape[0]), test_paper_labels_final))
+#test_labels1 = np.concatenate((np.asarray([100]*EIL_month_labels[412:].shape[0]), np.asarray([6]*ref_sono_Z.shape[0]), test_paper_labels_final))
 test_labels1 = np.concatenate((test_pos_neg_labels, np.asarray([6]*ref_sono_Z.shape[0]), test_paper_labels_final))
 test_labels2 = test_pos_neg_labels.copy()
 
@@ -1118,7 +1148,7 @@ test_paper_plot8 = mini_cld_conc_test[:,:2]
 for i in range(mini_cld_conc_test.shape[0]):
     if test_labels2[i] != 10:
         if mini_cld_conc_test[i, 0] < 0.007:
-            print(i+190+3)
+            print(i+412+3)
             test_labels3[i] = 11
 
 test_labels4 = train_labels.copy()
@@ -1129,47 +1159,48 @@ for i in range(mini_cld_train_conc_dm.shape[0]):
             print(train_labels[i])
             test_labels4[i] = 100'''
 
-#PLOT:
+
+#PLOT: Training set &  Extended Test set:
 fig = plt.figure(figsize=(20,8))
 title = title_orig
 fig.suptitle(title, fontsize=12)
 
-#Training set &  Extended Test set:
 plot_2d_embed_a(test_paper_plot1*-1,   test_labels1,                (2,4,1), c_dict, label_dict, 'A ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 plot_2d_embed_a(test_paper_plot2*-1,   test_labels2,                (2,4,5), c_dict, label_dict, 'B' , fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB)) #legend=1
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 plot_2d_embed_a(test_paper_plot3*-1,   test_labels1,                (2,4,2), c_dict, label_dict, 'A ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 plot_2d_embed_a(test_paper_plot4*-1,   test_labels2,                (2,4,6), c_dict, label_dict, 'B' , fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB)) #legend=1
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 plot_2d_embed_a(test_paper_plot5*-1,   test_labels1,                (2,4,3), c_dict, label_dict, 'A ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 plot_2d_embed_a(test_paper_plot6*-1,   test_labels2,                (2,4,7), c_dict, label_dict, 'B' , fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB)) #legend=1
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
-plot_2d_embed_a(test_paper_plot7*-1,   test_labels1,                (2,4,4), c_dict, label_dict, 'A ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB), legend=1)
-plt.xlim(-0.002, 0.003) #8days -1
-plt.ylim(-0.0013, 0.0015) #8days
-plot_2d_embed_a(test_paper_plot8*-1,   test_labels2,                (2,4,8), c_dict, label_dict, 'B' , fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB), legend=1) #legend=1
-plt.xlim(-0.002, 0.003) #8days -1
-plt.ylim(-0.0013, 0.0015) #8days
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(test_paper_plot7,   test_labels1,                (2,4,4), c_dict, label_dict, 'A ', fig, xlabel='\u03A62'.translate(SUB), ylabel='\u03A63'.translate(SUB), legend=1)
+#plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+#plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
+plot_2d_embed_a(test_paper_plot8,   test_labels2,                (2,4,8), c_dict, label_dict, 'B' , fig, xlabel='\u03A62'.translate(SUB), ylabel='\u03A63'.translate(SUB), legend=1) #legend=1
+#plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+#plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
 
 ##for debug:
 '''plot_2d_embed_a(test_paper_plot2,   test_labels3,                (2,5,4), c_dict, label_dict, '', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.01, 0.012) #8days -1
-plt.ylim(-0.01, 0.013)
-plot_2d_embed_a(mini_cld_train_conc_dm[:,:2],   train_labels,                (2,5,5), c_dict, label_dict, '', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.01, 0.012) #8days -1
-plt.ylim(-0.01, 0.013)
-plot_2d_embed_a(mini_cld_train_conc_dm[:,:2],   test_labels4,                (2,5,9), c_dict, label_dict, '', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.01, 0.012) #8days -1
-plt.ylim(-0.01, 0.013)'''
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])  
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
+plot_2d_embed_a(mini_cld_train_conc_dm23[:,:2],   train_labels,                (2,5,5), c_dict, label_dict, '', fig, xlabel='\u03A62'.translate(SUB), ylabel='\u03A63'.translate(SUB))
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])  
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
+plot_2d_embed_a(mini_cld_train_conc_dm23[:,:2],   test_labels4,                (2,5,9), c_dict, label_dict, '', fig, xlabel='\u03A62'.translate(SUB), ylabel='\u03A63'.translate(SUB))
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])  
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
+'''
 
 now = str(date.today())+'_' + str(str(datetime.now().hour)+'_'+str(datetime.now().minute)+'_'+str(datetime.now().second))
 plt.savefig('30_9_20/extension plots/'  +now+ ' trained-' + datatrain_num  +'  test-' + datatest_num  + ' cld_mode=' + cloud_mode +'.png') #+ title
@@ -1243,156 +1274,261 @@ for i in positive_count[4]:
 
 
 
+
 # ---------- final paper plot
-'''labels?
-dm_train_E_1 = dm_train_E[:,:2]*-1 # 8 days of march 2011
-dm_train_N_1 = dm_train_N[:,:2]*-1 # 8 days of march 2011
-dm_train_Z_1 = dm_train_Z[:,:2]*-1 # 8 days of march 2011
-dm_train_E_2 = dm_train_E[:,:2]*-1 # april 2015
-dm_train_N_2 = dm_train_N[:,:2]*-1 # april 2015
-dm_train_Z_2 = dm_train_Z[:,:2]*-1 # april 2015
-dm_train_E_3 = dm_train_E[:,:2]*-1 # march 2011
-dm_train_N_3 = dm_train_N[:,:2]*-1 # march 2011
-dm_train_Z_3 = dm_train_Z[:,:2]*-1 # march 2011
-dm_train_E_4 = dm_train_E[:,:2]*-1 # march 2011 + april 2015
-dm_train_N_4 = dm_train_N[:,:2]*-1 # march 2011 + april 2015
-dm_train_Z_4 = dm_train_Z[:,:2]*-1 # march 2011 + april 2015
+#dm_train_E_1 = dm_train_E[:,:2]*-1 # 11 days of march 2011
+#dm_train_N_1 = dm_train_N[:,:2]*-1 # 11 days of march 2011
+#dm_train_Z_1 = dm_train_Z[:,:2]*-1 # 11 days of march 2011
+#train_labels_1 = train_labels
+#c_dict_1 = c_dict
+#label_dict_1 = label_dict
+#dm_train_E_2 = dm_train_E[:,:2] # april 2015
+#dm_train_N_2 = dm_train_N[:,:2]*-1 # april 2015
+#dm_train_Z_2 = dm_train_Z[:,:2]*-1 # april 2015
+#train_labels_2 = train_labels
+#c_dict_2 = c_dict
+#label_dict_2 = label_dict
+#dm_train_E_3 = dm_train_E[:,:2]*-1 # march 2011
+#dm_train_N_3 = dm_train_N[:,:2]*-1 # march 2011
+#dm_train_Z_3 = dm_train_Z[:,:2]*-1 # march 2011
+#train_labels_3 = train_labels
+#c_dict_3 = c_dict
+#label_dict_3 = label_dict
+#dm_train_E_4 = dm_train_E[:,:2]*-1 # march 2011 + april 2015
+#dm_train_N_4 = dm_train_N[:,:2]*-1 # march 2011 + april 2015
+#dm_train_Z_4 = dm_train_Z[:,:2]*-1 # march 2011 + april 2015
+#train_labels_4 = train_labels
+#c_dict_4 = c_dict
+#label_dict_4 = label_dict
 
-mini_cld_train_conc_dm_1 = mini_cld_train_conc_dm[:,:2]*-1 # 8 days of march 2011
-mini_cld_train_E_1 = mini_cld_train_E[:,:2]*-1 # 8 days of march 2011
-mini_cld_train_N_1 = mini_cld_train_N[:,:2]*-1 # 8 days of march 2011
-mini_cld_train_Z_1 = mini_cld_train_Z[:,:2]*-1 # 8 days of march 2011
-mini_cld_train_conc_dm_2 = mini_cld_train_conc_dm[:,:2]*-1 # april 2015
-mini_cld_train_E_2 = mini_cld_train_E[:,:2]*-1 # april 2015
-mini_cld_train_N_2 = mini_cld_train_N[:,:2]*-1 # april 2015
-mini_cld_train_Z_2 = mini_cld_train_Z[:,:2]*-1 # april 2015
-mini_cld_train_conc_dm_3 = mini_cld_train_conc_dm[:,:2]*-1 # march 2011
-mini_cld_train_E_3 = mini_cld_train_E[:,:2]*-1 # march 2011
-mini_cld_train_N_3 = mini_cld_train_N[:,:2]*-1 # march 2011
-mini_cld_train_Z_3 = mini_cld_train_Z[:,:2]*-1 # march 2011
-mini_cld_train_conc_dm_4 = mini_cld_train_conc_dm[:,:2]*-1 # march 2011 + april 2015
-mini_cld_train_E_4 = mini_cld_train_E[:,:2]*-1 # march 2011 + april 2015
-mini_cld_train_N_4 = mini_cld_train_N[:,:2]*-1 # march 2011 + april 2015
-mini_cld_train_Z_4 = mini_cld_train_Z[:,:2]*-1 # march 2011 + april 2015
+#mini_cld_train_conc_dm_1 = mini_cld_train_conc_dm[:,:2] # 11 days of march 2011
+#mini_cld_train_E_1 = mini_cld_train_E[:,:2]*-1 # 11 days of march 2011
+#mini_cld_train_N_1 = mini_cld_train_N[:,:2] # 11 days of march 2011
+#mini_cld_train_Z_1 = mini_cld_train_Z[:,:2] # 11 days of march 2011
+#mini_cld_train_conc_dm_2 = mini_cld_train_conc_dm[:,:2]*-1 # april 2015
+#mini_cld_train_E_2 = mini_cld_train_E[:,:2]*-1 # april 2015
+#mini_cld_train_N_2 = mini_cld_train_N[:,:2] # april 2015
+#mini_cld_train_Z_2 = mini_cld_train_Z[:,:2] # april 2015
+#mini_cld_train_conc_dm_3 = mini_cld_train_conc_dm[:,:2]*-1 # march 2011
+#mini_cld_train_E_3 = mini_cld_train_E[:,:2]*-1 # march 2011
+#mini_cld_train_N_3 = mini_cld_train_N[:,:2] # march 2011
+#mini_cld_train_Z_3 = mini_cld_train_Z[:,:2] # march 2011
+#mini_cld_train_conc_dm_4 = mini_cld_train_conc_dm[:,:2]*-1 # march 2011 + april 2015
+#mini_cld_train_E_4 = mini_cld_train_E[:,:2]*-1 # march 2011 + april 2015
+#mini_cld_train_N_4 = mini_cld_train_N[:,:2] # march 2011 + april 2015
+#mini_cld_train_Z_4 = mini_cld_train_Z[:,:2]*-1 # march 2011 + april 2015
 
-#PAPER PLOT1
+
+#mini_cld_train_conc_dm_4 = np.concatenate((np.reshape(mini_cld_train_conc_dm_4[:,0],(mini_cld_train_conc_dm_4[:,0].shape[0],1)), np.reshape(mini_cld_train_conc_dm_4[:,1],(mini_cld_train_conc_dm_4[:,0].shape[0],1))*-1), axis=1)
+
+#PAPER PLOT1 Z:
 fig = plt.figure(figsize=(20,8))
-fig.suptitle(title, fontsize=14)
+#fig.suptitle(title, fontsize=14)
 SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
-plot_2d_embed_a(dm_train_N_1,             train_labels,   (2,4,1),  c_dict, label_dict, 'dm_N 1-8/3/2011  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(dm_train_N_2,             train_labels,   (2,4,2),  c_dict, label_dict, 'dm_N 4/2015  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(dm_train_N_3,             train_labels,   (2,4,3),  c_dict, label_dict, 'dm_N 1-31/3/2011  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(dm_train_N_4,             train_labels,   (2,4,4),  c_dict, label_dict, 'dm_N 3/2011+4/2015  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
+plot_2d_embed_a(dm_train_Z_1,             train_labels_1,   (2,4,1),  c_dict_1, label_dict_1, '', fig, xlabel_super='A' ,ylabel_super='dm_Z') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_Z_2,             train_labels_2,   (2,4,2),  c_dict_2, label_dict_2, '', fig, xlabel_super='B') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_Z_3,             train_labels_3,   (2,4,3),  c_dict_3, label_dict_3, '', fig, xlabel_super='C')# , xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_Z_4,             train_labels_4,   (2,4,4),  c_dict_4, label_dict_4, '', fig, xlabel_super='D', legend=1) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
 
-plot_2d_embed_a(mini_cld_train_N_1,             train_labels,   (2,4,5),  c_dict, label_dict, 'ref_dm_N 1-8/3/2011  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
-plot_2d_embed_a(mini_cld_train_N_2,             train_labels,   (2,4,6),  c_dict, label_dict, 'ref_dm_N 11-20/4/2015  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
-plot_2d_embed_a(mini_cld_train_N_3,             train_labels,   (2,4,7),  c_dict, label_dict, 'ref_dm_N 1-31/3/2011  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
-plot_2d_embed_a(mini_cld_train_N_4,             train_labels,   (2,4,8),  c_dict, label_dict, 'ref_dm_N 1-31/3/2011 + 11-20/4/2015  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.07, 0.12) #8days -1
-plt.ylim(-0.1, 0.09) #8days
+plot_2d_embed_a(mini_cld_train_Z_1,             train_labels_1,   (2,4,5),  c_dict_1, label_dict_1, '', fig, ylabel_super='ref_dm_Z') #), xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_Z_2,             train_labels_2,   (2,4,6),  c_dict_2, label_dict_2, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_Z_3,             train_labels_3,   (2,4,7),  c_dict_3, label_dict_3, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_Z_4,             train_labels_4,   (2,4,8),  c_dict_4, label_dict_4, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
 
+fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.8, wspace=0.2, hspace=0.3)
 now = str(date.today())+'_' + str(str(datetime.now().hour)+'_'+str(datetime.now().minute)+'_'+str(datetime.now().second))
-#plt.savefig('30_9_20/training/' +now+ 'train - ' + datatrain_num  + ' cld_mode=' + cloud_mode +'.png') #+'.eps', format='eps')
-plt.savefig('30_9_20/paper plot/' +now+ 'plot1' + '.eps', bbox_inches = 'tight', pad_inches = 0, format='eps')  # +'.eps', format='eps')
+#plt.savefig('30_9_20/paper plot/' +now+ 'plot1' +'.png') #+'.eps', format='eps')
+plt.savefig('30_9_20/paper plot/' +now+ 'plot1' + '.eps', bbox_inches = 'tight', pad_inches = 0.1, format='eps')  # +'.eps', format='eps')
 plt.close(fig)    #plt.show()
 print('plot1 saved')
 
+#PAPER PLOT1 N:
+fig = plt.figure(figsize=(20,8))
+#fig.suptitle(title, fontsize=14)
+SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+plot_2d_embed_a(dm_train_N_1,             train_labels_1,   (2,4,1),  c_dict_1, label_dict_1, '', fig, xlabel_super='A' ,ylabel_super='dm_N') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_N_2,             train_labels_2,   (2,4,2),  c_dict_2, label_dict_2, '', fig, xlabel_super='B') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_N_3,             train_labels_3,   (2,4,3),  c_dict_3, label_dict_3, '', fig, xlabel_super='C')# , xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_N_4,             train_labels_4,   (2,4,4),  c_dict_4, label_dict_4, '', fig, xlabel_super='D', legend=1) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+
+plot_2d_embed_a(mini_cld_train_N_1,             train_labels_1,   (2,4,5),  c_dict_1, label_dict_1, '', fig, ylabel_super='ref_dm_N') #), xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_N_2,             train_labels_2,   (2,4,6),  c_dict_2, label_dict_2, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_N_3,             train_labels_3,   (2,4,7),  c_dict_3, label_dict_3, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_N_4,             train_labels_4,   (2,4,8),  c_dict_4, label_dict_4, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+
+fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.8, wspace=0.2, hspace=0.3)
+now = str(date.today())+'_' + str(str(datetime.now().hour)+'_'+str(datetime.now().minute)+'_'+str(datetime.now().second))
+#plt.savefig('30_9_20/paper plot/' +now+ 'plot1' +'.png') #+'.eps', format='eps')
+plt.savefig('30_9_20/paper plot/' +now+ 'plot1' + '.eps', bbox_inches = 'tight', pad_inches = 0.1, format='eps')  # +'.eps', format='eps')
+plt.close(fig)    #plt.show()
+print('plot1 saved')
+
+#PAPER PLOT1 E:
+fig = plt.figure(figsize=(20,8))
+#fig.suptitle(title, fontsize=14)
+SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+plot_2d_embed_a(dm_train_E_1,             train_labels_1,   (2,4,1),  c_dict_1, label_dict_1, '', fig, xlabel_super='A' ,ylabel_super='dm_E') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_E_2,             train_labels_2,   (2,4,2),  c_dict_2, label_dict_2, '', fig, xlabel_super='B') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_E_3,             train_labels_3,   (2,4,3),  c_dict_3, label_dict_3, '', fig, xlabel_super='C')# , xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+plot_2d_embed_a(dm_train_E_4,             train_labels_4,   (2,4,4),  c_dict_4, label_dict_4, '', fig, xlabel_super='D', legend=1) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_dm[0], xlim_dm[1])
+plt.ylim(ylim_dm[0], ylim_dm[1])
+
+plot_2d_embed_a(mini_cld_train_E_1,             train_labels_1,   (2,4,5),  c_dict_1, label_dict_1, '', fig, ylabel_super='ref_dm_E') #), xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_E_2,             train_labels_2,   (2,4,6),  c_dict_2, label_dict_2, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_E_3,             train_labels_3,   (2,4,7),  c_dict_3, label_dict_3, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_E_4,             train_labels_4,   (2,4,8),  c_dict_4, label_dict_4, '', fig) #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+
+fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.8, wspace=0.2, hspace=0.3)
+now = str(date.today())+'_' + str(str(datetime.now().hour)+'_'+str(datetime.now().minute)+'_'+str(datetime.now().second))
+#plt.savefig('30_9_20/paper plot/' +now+ 'plot1' +'.png') #+'.eps', format='eps')
+plt.savefig('30_9_20/paper plot/' +now+ 'plot1' + '.eps', bbox_inches = 'tight', pad_inches = 0.1, format='eps')  # +'.eps', format='eps')
+plt.close(fig)    #plt.show()
+print('plot1 saved')
+
+
+
 #PAPER PLOT2
 fig = plt.figure(figsize=(20,8))
-fig.suptitle(title, fontsize=14)
+
+#fig.suptitle(title, fontsize=14)
 SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
-plot_2d_embed_a(mini_cld_train_Z_1,             train_labels,   (4,4,1),  c_dict, label_dict, 'ref_dm_Z 1-8/3/2011  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_N_1,             train_labels,   (4,4,2),  c_dict, label_dict, 'ref_dm_N 1-8/3/2011   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_E_1,             train_labels,   (4,4,3),  c_dict, label_dict, 'ref_dm_W 1-8/3/2011   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_conc_dm_1,       train_labels,   (4,4,4),  c_dict, label_dict, 'ref_dm_ZNE 1-8/3/2011   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
+plot_2d_embed_a(mini_cld_train_Z_1,             train_labels_1,   (4,4,1),  c_dict_1, label_dict_1, '', fig, mode='red pink top', xlabel_super='Z' ,ylabel_super= 'A') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_N_1,             train_labels_1,   (4,4,2),  c_dict_1, label_dict_1, '', fig, mode='red pink top', xlabel_super='N') # , xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_E_1,             train_labels_1,   (4,4,3),  c_dict_1, label_dict_1, '', fig, mode='red pink top', xlabel_super='E') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_conc_dm_1,       train_labels_1,   (4,4,4),  c_dict_1, label_dict_1, '', fig, mode='red pink top', xlabel_super='ZNE', legend=1) #, xlabel='\u03A62'.translate(SUB), ylabel='\u03A63'.translate(SUB))
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
 
-plot_2d_embed_a(mini_cld_train_Z_2,             train_labels,   (4,4,5),  c_dict, label_dict, 'ref_dm_Z 11-20/4/2015  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_N_2,             train_labels,   (4,4,6),  c_dict, label_dict, 'ref_dm_N 11-20/4/2015   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_E_2,             train_labels,   (4,4,7),  c_dict, label_dict, 'ref_dm_W 11-20/4/2015   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_conc_dm_2,       train_labels,   (4,4,8),  c_dict, label_dict, 'ref_dm_ZNE 11-20/4/2015   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
+plot_2d_embed_a(mini_cld_train_Z_2,             train_labels_2,   (4,4,5),  c_dict_2, label_dict_2, '', fig, mode='red pink top', ylabel_super= 'B') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_N_2,             train_labels_2,   (4,4,6),  c_dict_2, label_dict_2, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_E_2,             train_labels_2,   (4,4,7),  c_dict_2, label_dict_2, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_conc_dm_2,       train_labels_2,   (4,4,8),  c_dict_2, label_dict_2, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
 
-plot_2d_embed_a(mini_cld_train_Z_3,             train_labels,   (4,4,9),  c_dict, label_dict, 'ref_dm_Z 1-31/3/2011  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_N_3,             train_labels,   (4,4,10),  c_dict, label_dict, 'ref_dm_N 1-31/3/2011   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_E_3,             train_labels,   (4,4,11),  c_dict, label_dict, 'ref_dm_W 1-31/3/2011   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_conc_dm_3,       train_labels,   (4,4,12),  c_dict, label_dict, 'ref_dm_ZNE 1-31/3/2011   ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
+plot_2d_embed_a(mini_cld_train_Z_3,             train_labels_3,   (4,4,9),  c_dict_3, label_dict_3, '', fig, mode='red pink top', ylabel_super= 'C') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_N_3,             train_labels_3,   (4,4,10),  c_dict_3, label_dict_3, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_E_3,             train_labels_3,   (4,4,11),  c_dict_3, label_dict_3, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_conc_dm_3,       train_labels_3,   (4,4,12),  c_dict_3, label_dict_3, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
 
-plot_2d_embed_a(mini_cld_train_Z_4,             train_labels,   (4,4,13),  c_dict, label_dict, 'ref_dm_Z 1-31/3/2011 + 11-20/4/2015 ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_N_4,             train_labels,   (4,4,14),  c_dict, label_dict, 'ref_dm_N /1-31/3/2011 + 11-20/4/2015 ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_E_4,             train_labels,   (4,4,15),  c_dict, label_dict, 'ref_dm_W 1-31/3/2011 + 11-20/4/2015  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
-plot_2d_embed_a(mini_cld_train_conc_dm_4,       train_labels,   (4,4,16),  c_dict, label_dict, 'ref_dm_ZNE 1-31/3/2011 + 11-20/4/2015  ', fig, fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
-plt.xlim(-0.0015, 0.0025)  #8days -1
-plt.ylim(-0.00125, 0.00125)
+plot_2d_embed_a(mini_cld_train_Z_4,             train_labels_4,   (4,4,13),  c_dict_4, label_dict_4, '', fig, mode='red pink top', ylabel_super= 'D') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_N_4,             train_labels_4,   (4,4,14),  c_dict_4, label_dict_4, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_E_4,             train_labels_4,   (4,4,15),  c_dict_4, label_dict_4, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm[0], xlim_ref_dm[1])
+plt.ylim(ylim_ref_dm[0], ylim_ref_dm[1])
+plot_2d_embed_a(mini_cld_train_conc_dm_4,       train_labels_4,   (4,4,16),  c_dict_4, label_dict_4, '', fig, mode='red pink top') #, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB))
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
 
+fig.subplots_adjust(left=0.125, bottom=0.1, right=0.9, top=0.8, wspace=0.15, hspace=0.3)
 now = str(date.today())+'_' + str(str(datetime.now().hour)+'_'+str(datetime.now().minute)+'_'+str(datetime.now().second))
-#plt.savefig('30_9_20/training/' +now+ 'train - ' + datatrain_num  + ' cld_mode=' + cloud_mode +'.png') #+'.eps', format='eps')
-plt.savefig('30_9_20/paper plot/' +now+ 'plot2' + '.eps', bbox_inches = 'tight', pad_inches = 0, format='eps')  # +'.eps', format='eps')
+#plt.savefig('30_9_20/paper plot/' +now+ 'plot2' + '.png') #+'.eps', format='eps')
+plt.savefig('30_9_20/paper plot/' +now+ 'plot2' + '.eps', bbox_inches = 'tight', pad_inches = 0.1, format='eps')  # +'.eps', format='eps')
 plt.close(fig)    #plt.show()
 print('plot2 saved')
 
-#PAPER PLOT3
+
+
+#PAPER PLOT3 - only for one test
 fig = plt.figure(figsize=(20,8))
-fig.suptitle(title, fontsize=14)
+#fig.suptitle(title, fontsize=14)
 SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
-plot_2d_embed_a(test_paper_plot7*-1,   test_labels1,                (2,4,4), c_dict, label_dict, 'A ', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB), legend=1)
-plt.xlim(-0.002, 0.003) #8days -1
-plt.ylim(-0.0013, 0.0015) #8days
-plot_2d_embed_a(test_paper_plot8*-1,   test_labels2,                (2,4,8), c_dict, label_dict, 'B' , fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB), legend=1) #legend=1
-plt.xlim(-0.002, 0.003) #8days -1
-plt.ylim(-0.0013, 0.0015) #8days
+plot_2d_embed_a(test_paper_plot7,   test_labels1,                (1,1,1), c_dict, label_dict, '', fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB), legend=1) #'A'
+plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
+#plot_2d_embed_a(test_paper_plot8,   test_labels2,                (2,1,2), c_dict, label_dict, 'B' , fig, xlabel='\u03A61'.translate(SUB), ylabel='\u03A62'.translate(SUB), legend=1) #legend=1
+#plt.xlim(xlim_ref_dm_conc[0], xlim_ref_dm_conc[1])
+#plt.ylim(ylim_ref_dm_conc[0], ylim_ref_dm_conc[1])
 now = str(date.today())+'_' + str(str(datetime.now().hour)+'_'+str(datetime.now().minute)+'_'+str(datetime.now().second))
-#plt.savefig('30_9_20/training/' +now+ 'train - ' + datatrain_num  + ' cld_mode=' + cloud_mode +'.png') #+'.eps', format='eps')
-plt.savefig('30_9_20/paper plot/' +now+ 'plot3' + '.eps', bbox_inches = 'tight', pad_inches = 0, format='eps')  # +'.eps', format='eps')
+#plt.savefig('30_9_20/paper plot/' +now+ 'plot3' +'.png')
+plt.savefig('30_9_20/paper plot/' +now+ 'plot3' + '.eps', bbox_inches = 'tight', pad_inches = 0.1, format='eps')  # +'.eps', format='eps')
 plt.close(fig)    #plt.show()
-print('plot3 saved')'''
+print('plot3 saved')
+
+
+
+
+
+
+
+
+
 
 
 # ---------------------------------------
-'''#comparison between extensions GH to LP
-title = ' '
+#comparison between extensions GH to LP
+'''title = ' '
 fig = plt.figure(figsize=(20,15))
 plt.subplots_adjust(left=0.125  , bottom=0.1   , right=0.9    , top=0.9      , wspace=0.2   , hspace=0.4   )
 import datafold.pcfold as pfold
